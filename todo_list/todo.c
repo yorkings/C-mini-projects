@@ -49,10 +49,36 @@ void delete_task(char tasks[][MAX_LENGTH], int *task_count) {
     }
 }
 
+void save_tasks(char tasks[][MAX_LENGTH], int task_count) {
+    FILE *file = fopen("tasks.txt", "w");
+    if (file == NULL) return; // Error checking
+
+    for (int i = 0; i < task_count; i++) {
+        fprintf(file, "%s\n", tasks[i]); // Write each task to a new line
+    }
+    fclose(file);
+    printf("Saved to disk!\n");
+}
+
+void load_tasks(char tasks[][MAX_LENGTH], int *task_count) {
+    FILE *file = fopen("tasks.txt", "r");
+    if (file == NULL) return; // No file yet, which is fine for first run
+
+    while (fgets(tasks[*task_count], MAX_LENGTH, file)) {
+        tasks[*task_count][strcspn(tasks[*task_count], "\n")] = 0; // Clean newline
+        (*task_count)++;
+    }
+    fclose(file);
+}
+
+
 int main() {
     char tasks[MAX_TASKS][MAX_LENGTH];
     int task_count = 0;
     int choice;
+    // Load existing data at startup
+    load_tasks(tasks, &task_count);
+
 
     do {
         printf("\n--- To-Do List Menu ---\n");
@@ -72,6 +98,7 @@ int main() {
                 delete_task(tasks, &task_count);
                 break;
             case 4:
+                save_tasks(tasks, task_count);
                 printf("Exiting...\n");
                 break;
             default:
